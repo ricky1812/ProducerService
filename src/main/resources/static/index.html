@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Send Event</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        input, button { width: 100%; padding: 10px; margin-top: 10px; }
+        button { background: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background: #45a049; }
+        .status { margin-top: 15px; font-weight: bold; }
+        a { display: inline-block; margin-top: 15px; text-decoration: none; color: #007BFF; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<h1>📤 Send Event to Kafka</h1>
+
+<!-- Hyperlink to consumer live stream page -->
+<a href="http://localhost:8082/index.html">Go to Live Stream Page</a>
+
+<label for="type">Type:</label>
+<input type="text" id="type" placeholder="order.created">
+
+<label for="orderId">Order ID:</label>
+<input type="text" id="orderId" placeholder="1234567890">
+
+<button onclick="sendEvent()">Send Event</button>
+
+<div class="status" id="status"></div>
+
+<script>
+    async function sendEvent() {
+        const type = document.getElementById("type").value.trim();
+        const orderId = document.getElementById("orderId").value.trim();
+        const statusDiv = document.getElementById("status");
+
+        if (!type || !orderId) {
+            statusDiv.textContent = "⚠️ Please fill in both fields.";
+            statusDiv.style.color = "red";
+            return;
+        }
+
+        const payload = {
+            type: type,
+            orderId: orderId
+        };
+
+        try {
+            const response = await fetch("/events", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const text = await response.text();
+            if (response.ok) {
+                statusDiv.textContent = "✅ " + text;
+                statusDiv.style.color = "green";
+            } else {
+                statusDiv.textContent = "❌ Failed: " + text;
+                statusDiv.style.color = "red";
+            }
+        } catch (err) {
+            statusDiv.textContent = "❌ Error: " + err.message;
+            statusDiv.style.color = "red";
+        }
+    }
+</script>
+</body>
+</html>
