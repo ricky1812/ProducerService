@@ -32,4 +32,8 @@ public class EventController {
 
 
     }
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/index.html";
+    }
 }
